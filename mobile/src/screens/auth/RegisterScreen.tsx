@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -11,6 +12,7 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -33,6 +35,7 @@ export default function RegisterScreen() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState<Role>('PASSENGER')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -64,18 +67,18 @@ export default function RegisterScreen() {
         role,
       })
     } catch (error: any) {
-  console.log('REGISTRATION ERROR:', error)
-  console.log('RESPONSE:', error?.response?.data)
-  console.log('STATUS:', error?.response?.status)
-  console.log('MESSAGE:', error?.message)
+      console.log('REGISTRATION ERROR:', error)
+      console.log('RESPONSE:', error?.response?.data)
+      console.log('STATUS:', error?.response?.status)
+      console.log('MESSAGE:', error?.message)
 
-  const message =
-    error?.response?.data?.message ||
-    error?.message ||
-    'Unable to create your account. Please try again.'
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Unable to create your account. Please try again.'
 
-  Alert.alert('Registration failed', message)
-} finally {
+      Alert.alert('Registration failed', message)
+    } finally {
       setIsSubmitting(false)
     }
   }
@@ -112,6 +115,7 @@ export default function RegisterScreen() {
             placeholder="Your full name"
             placeholderTextColor={colors.muted}
             autoCapitalize="words"
+            autoComplete="name"
             style={styles.input}
             editable={!isSubmitting}
           />
@@ -126,6 +130,7 @@ export default function RegisterScreen() {
             placeholder="07XXXXXXXX"
             placeholderTextColor={colors.muted}
             keyboardType="phone-pad"
+            autoComplete="tel"
             style={styles.input}
             editable={!isSubmitting}
           />
@@ -141,6 +146,8 @@ export default function RegisterScreen() {
             placeholderTextColor={colors.muted}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
             style={styles.input}
             editable={!isSubmitting}
           />
@@ -149,15 +156,42 @@ export default function RegisterScreen() {
         <View style={styles.field}>
           <Text style={styles.label}>Password</Text>
 
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="At least 8 characters"
-            placeholderTextColor={colors.muted}
-            secureTextEntry
-            style={styles.input}
-            editable={!isSubmitting}
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="At least 8 characters"
+              placeholderTextColor={colors.muted}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="new-password"
+              style={styles.passwordInput}
+              editable={!isSubmitting}
+            />
+
+            <Pressable
+              onPress={() =>
+                setShowPassword((previous) => !previous)
+              }
+              disabled={isSubmitting}
+              accessibilityRole="button"
+              accessibilityLabel={
+                showPassword ? 'Hide password' : 'Show password'
+              }
+              accessibilityState={{ selected: showPassword }}
+              hitSlop={10}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={
+                  showPassword ? 'eye-off-outline' : 'eye-outline'
+                }
+                size={24}
+                color={colors.textSecondary}
+              />
+            </Pressable>
+          </View>
         </View>
 
         <Text style={styles.label}>I want to use LIFT as</Text>
@@ -183,8 +217,7 @@ export default function RegisterScreen() {
             <Text
               style={[
                 styles.roleDescription,
-                role === 'PASSENGER' &&
-                  styles.roleTextSelected,
+                role === 'PASSENGER' && styles.roleTextSelected,
               ]}
             >
               Find and share rides
@@ -242,7 +275,10 @@ export default function RegisterScreen() {
             Already have an account?
           </Text>
 
-          <Pressable onPress={() => navigation.navigate('Login')}>
+          <Pressable
+            onPress={() => navigation.navigate('Login')}
+            disabled={isSubmitting}
+          >
             <Text style={styles.loginLink}>Log in</Text>
           </Pressable>
         </View>
@@ -310,6 +346,33 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily,
     fontSize: 16,
     color: colors.text,
+  },
+
+  passwordContainer: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    backgroundColor: colors.white,
+  },
+
+  passwordInput: {
+    flex: 1,
+    height: '100%',
+    paddingLeft: spacing.lg,
+    paddingRight: spacing.sm,
+    fontFamily: typography.fontFamily,
+    fontSize: 16,
+    color: colors.text,
+  },
+
+  eyeButton: {
+    width: 52,
+    height: 54,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   roles: {

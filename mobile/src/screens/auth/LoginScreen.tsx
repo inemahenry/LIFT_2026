@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -29,6 +30,7 @@ export default function LoginScreen() {
 
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleLogin = async () => {
@@ -84,7 +86,7 @@ export default function LoginScreen() {
           </Text>
 
           <View style={styles.field}>
-            <Text style={styles.label}>Phone number</Text>
+            <Text style={styles.label}>Phone nuumber</Text>
 
             <TextInput
               value={phone}
@@ -93,6 +95,7 @@ export default function LoginScreen() {
               placeholderTextColor={colors.muted}
               keyboardType="phone-pad"
               autoCapitalize="none"
+              autoComplete="tel"
               style={styles.input}
               editable={!isSubmitting}
             />
@@ -101,15 +104,43 @@ export default function LoginScreen() {
           <View style={styles.field}>
             <Text style={styles.label}>Password</Text>
 
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter your password"
-              placeholderTextColor={colors.muted}
-              secureTextEntry
-              style={styles.input}
-              editable={!isSubmitting}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter your password"
+                placeholderTextColor={colors.muted}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="current-password"
+                style={styles.passwordInput}
+                editable={!isSubmitting}
+              />
+
+              <Pressable
+                onPress={() =>
+                  setShowPassword((previous) => !previous)
+                }
+                disabled={isSubmitting}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showPassword ? 'Hide password' : 'Show password'
+                }
+                accessibilityState={{ selected: showPassword }}
+                hitSlop={10}
+                style={({ pressed }) => [
+                  styles.eyeButton,
+                  pressed && styles.eyePressed,
+                ]}
+              >
+                {showPassword ? (
+                  <Text style={styles.eyeIcon}>◉</Text>
+                ) : (
+                  <Text style={styles.eyeIcon}>◎</Text>
+                )}
+              </Pressable>
+            </View>
           </View>
 
           <Pressable
@@ -219,6 +250,44 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily,
     fontSize: 16,
     color: colors.text,
+  },
+
+  passwordContainer: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    backgroundColor: colors.white,
+  },
+
+  passwordInput: {
+    flex: 1,
+    height: '100%',
+    paddingLeft: spacing.lg,
+    paddingRight: spacing.sm,
+    fontFamily: typography.fontFamily,
+    fontSize: 16,
+    color: colors.text,
+  },
+
+  eyeButton: {
+    height: 52,
+    minWidth: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopRightRadius: radius.md,
+    borderBottomRightRadius: radius.md,
+  },
+
+  eyeIcon: {
+    fontSize: 23,
+    color: colors.textSecondary,
+  },
+
+  eyePressed: {
+    opacity: 0.6,
   },
 
   primaryButton: {
